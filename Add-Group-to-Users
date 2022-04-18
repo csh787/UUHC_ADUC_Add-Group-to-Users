@@ -1,0 +1,78 @@
+############## SET WINDOW SIZE ##############
+#############################################
+Function Set-WindowSize {
+Param([int]$x=$host.ui.rawui.windowsize.width,
+      [int]$y=$host.ui.rawui.windowsize.heigth)
+
+    $size=New-Object System.Management.Automation.Host.Size($x,$y)
+    $host.ui.rawui.WindowSize=$size   
+}
+Set-WindowSize 110 50
+############## SET WINDOW SIZE ##############
+#############################################
+
+
+
+
+
+
+############ RETREIVE AD GROUPS ###########
+###########################################
+Set-ExecutionPolicy Bypass -Force
+Do {
+CLS
+Write-Host "===================================================================================================================
+===================================================================================================================
+
+                                        Retreiving UUHC AD Groups...
+                                        
+===================================================================================================================
+===================================================================================================================
+"
+Start-Sleep -Seconds 1
+Get-ADGroup -filter {name -like "UUHC-HCU*"} | select Name | Sort-Object Name | Format-Wide Name -Column 3
+Write-Host "===================================================================================================================
+===================================================================================================================
+
+                                        Retreiving UUHP AD Groups...
+                                        
+===================================================================================================================
+===================================================================================================================
+"
+Start-Sleep -Seconds 1
+Get-ADGroup -filter {name -like "UUHP*"} | select Name | Sort-Object Name | Format-Wide Name -Column 3
+############ RETREIVE AD GROUPS ###########
+###########################################
+
+
+
+
+
+########### ADD USER TO AD GROUP ##########
+###########################################
+Write-Host "Enter in the Group Name and press Enter."
+$ADGroupName = Read-Host
+
+Write-Host "Enter in the user UID that will be added to the group entered above. Then press Enter.
+This will add the user to that group and then call the group so you can check to see if 
+they have been added to it."
+$UserUID = Read-Host
+
+Start-Sleep -Seconds 1
+Add-ADGroupMember "$ADGroupName" $UserUID
+Start-Sleep -Seconds 2
+
+CLS
+Write-Host "===================================================================================================================
+===================================================================================================================
+
+                                            Calling AD Group...
+                                        
+===================================================================================================================
+===================================================================================================================
+"
+Start-Sleep -Seconds 1
+Get-ADGroupMember -Identity $ADGroupName | Get-ADUser -Property DisplayName, Title, Department | Select Name, DisplayName, Department, Title | Sort-Object DisplayName | Format-Table -AutoSize
+Read-Host "Press Enter to restart script."
+}
+Until ($ADUCGroups -eq "=-#")
